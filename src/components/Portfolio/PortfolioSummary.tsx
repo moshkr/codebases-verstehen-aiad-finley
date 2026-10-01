@@ -1,5 +1,6 @@
 import React from 'react';
 import { PortfolioMetrics } from '@/types';
+import { formatCurrency, formatPercent } from '@/lib/utils/format';
 
 interface PortfolioSummaryProps {
   totalShares: number;
@@ -19,9 +20,6 @@ export const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({ totalShares,
       </div>
     );
   }
-
-  const formatPercent = (value: number) => `${(value * 100).toFixed(2)}%`;
-  const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
 
   return (
     <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
