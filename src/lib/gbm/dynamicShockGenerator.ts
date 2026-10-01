@@ -38,6 +38,15 @@ const MOOD_ORDER: MarketMood[] = ['panic', 'fearful', 'neutral', 'optimistic', '
 
 /**
  * Generates a sequence of market moods using a Markov Chain
+ *
+ * Hilfskommentar:
+ * - Markov-Kette: Die Stimmung im nächsten Monat hängt nur von der Stimmung jetzt ab
+ * - TRANSITION_MATRIX gibt die Wahrscheinlichkeiten vor (z. B. neutral → neutral: 80 %)
+ * - Ablauf pro Monat:
+ *   1. Zufallszahl zwischen 0 und 1 ziehen (roll)
+ *   2. Wahrscheinlichkeiten der Reihe nach aufaddieren
+ *   3. Sobald die Summe größer als roll ist → das ist die neue Stimmung
+ * - Ergebnis: lange ruhige Phasen, kurze Panik- und Euphorie-Phasen
  */
 export function generateMoodSequence(
   seed: string,
@@ -95,6 +104,14 @@ function getMoodShockParams(mood: MarketMood): {
 
 /**
  * Generates dynamic shocks based on Mood sequence and Asset Category
+ *
+ * Hilfskommentar:
+ * - Schocks = plötzliche Sprünge im Kurs (Crash oder Boom)
+ * - Pro Monat wird gewürfelt:
+ *   1. Gibt es einen Schock? (Chance je nach Stimmung: 3 % neutral bis 20 % Panik)
+ *   2. Geht es hoch oder runter? (bei Panik meist runter, bei Euphorie meist hoch)
+ *   3. Wie stark? Basis 1–5 % × Sensitivität der Aktie × Stärke der Stimmung
+ * - Nach einem Schock werden 2 Monate übersprungen (Pause zwischen Schocks)
  */
 export function generateDynamicShocks(
   seed: string,
@@ -160,6 +177,13 @@ export function applyDynamicShocks(
 
 /**
  * Applies a single impulse shock with recovery logic
+ *
+ * Hilfskommentar:
+ * - Im Schock-Monat: Kurs × (1 + magnitude), z. B. −10 % → Kurs × 0.9
+ * - Danach eine Phase von mindestens 6 Monaten:
+ *   - Nach einem Crash: Kurse werden leicht angehoben (Erholung)
+ *   - Nach einem Boom: Kurse werden leicht gedrückt (Korrektur)
+ * - Der Effekt ist am Anfang am stärksten und wird dann immer schwächer
  */
 function applyImpulseShock(
   path: DataPoint[],

@@ -30,6 +30,19 @@ function getMoodMultipliers(mood: MarketMood): { driftMult: number; volMult: num
  * @param moods - Array of MarketMoods (must match dates length)
  * @param category - Asset category for risk-based scaling
  * @param rng - Seeded random number generator
+ *
+ * Hilfskommentar:
+ * - GBM = Geometrische Brownsche Bewegung, das Standardmodell für Aktienkurse
+ * - Jeder Monat: neuer Kurs = alter Kurs × exp(Trend + Zufall)
+ *   - Trend (drift)     = (mu − sigma²/2) × dt  → langfristige Richtung
+ *   - Zufall (diffusion) = sigma × Z × √dt      → zufälliges Auf und Ab
+ *   - Z = normalverteilte Zufallszahl (meist zwischen −2 und +2)
+ *   - dt = 1/12, weil ein Schritt ein Monat ist
+ * - Durch exp() bleibt der Kurs immer positiv (nie unter 0)
+ * - Besonderheit hier: mu und sigma werden jeden Monat angepasst
+ *   - Stimmung (Mood) gibt Faktoren vor (z. B. Panik: Trend negativ, Schwankung ×2.5)
+ *   - Sensitivität (Beta) der Kategorie bestimmt, wie stark die Aktie darauf reagiert
+ *   - Riskante Aktien bekommen in guten Phasen zusätzlich einen Zufallsbonus (bis ×4)
  */
 export function generateMoodBasedGBMPath(
   startPrice: number,
@@ -173,6 +186,12 @@ export function generateGBMPath(
  * @param numPaths - Number of paths to generate
  * @param rng - Seeded random number generator
  * @returns Array of paths, each containing values at each time step
+ *
+ * Hilfskommentar:
+ * - Monte-Carlo-Prognose: dieselbe GBM-Formel, aber viele Male (z. B. 1000 Pfade)
+ * - Jeder Pfad ist eine mögliche Zukunft
+ * - Daraus kann man Bandbreiten ablesen: schlechter Fall (10 %), Mittel (50 %), guter Fall (90 %)
+ * - Hinweis: Diese Funktion wird aktuell nirgends aufgerufen (FanChart ist nicht eingebunden)
  */
 export function generateMultiplePaths(
   startPrice: number,

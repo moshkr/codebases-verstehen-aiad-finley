@@ -11,6 +11,12 @@ import { yearsBetween } from '../utils/date';
  * @param assets - Array of all available assets
  * @param portfolio - Array of portfolio items (asset ID + shares)
  * @returns Array of DataPoints representing portfolio value over time
+ *
+ * Hilfskommentar:
+ * - Portfoliowert pro Monat = Summe aus (Anzahl Aktien × Kurs) aller Positionen
+ * - Beispiel: 10 × 50 € + 5 × 100 € = 1.000 €
+ * - Ändert der Nutzer die Anzahl, wird alles neu berechnet
+ * - Die Kurse selbst ändern sich dabei nicht – nur die Gewichtung im Portfolio
  */
 export function calculatePortfolioValue(
   assets: Asset[],
@@ -50,6 +56,13 @@ export function calculatePortfolioValue(
  *
  * @param portfolioValue - Historical portfolio values
  * @returns Portfolio metrics (return, volatility, max drawdown)
+ *
+ * Hilfskommentar:
+ * - Rendite p. a.: durchschnittlicher Gewinn pro Jahr (mit Zinseszins)
+ *   → (Endwert / Startwert) ^ (1 / Jahre) − 1
+ * - Volatilität p. a.: wie stark der Wert schwankt
+ *   → Standardabweichung der Monatsrenditen × √12 (Umrechnung auf ein Jahr)
+ * - Max Drawdown: größter Verlust vom Höchststand bis zum Tiefpunkt danach
  */
 export function calculatePortfolioMetrics(
   portfolioValue: DataPoint[]
